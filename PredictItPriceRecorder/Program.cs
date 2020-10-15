@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Ninject;
+using PredictItPriceRecorder.Ninject;
+using System;
 using Topshelf;
 
 namespace PredictItPriceRecorder
@@ -11,7 +13,8 @@ namespace PredictItPriceRecorder
             {
                 x.Service<Heartbeat>(s =>
                 {
-                    s.ConstructUsing(heartBeat => new Heartbeat());
+                    //s.ConstructUsing(heartBeat => new Heartbeat());
+                    s.ConstructUsing(heartBeat => GetHeartbeat());
                     s.WhenStarted(heartBeat => heartBeat.Start());
                     s.WhenStopped(heartBeat => heartBeat.Stop());
                 });
@@ -25,6 +28,16 @@ namespace PredictItPriceRecorder
 
             int exitCodeValue = (int)Convert.ChangeType(exitCode, exitCode.GetTypeCode());
             Environment.ExitCode = exitCodeValue;
+        }
+
+        private static Heartbeat GetHeartbeat()
+        {
+            using (var kernel = new StandardKernel(new PriceRecorderNinjectModule()))
+            {
+                //var recorder = kernel.Get<Recorder>();
+                //recorder.Run().ConfigureAwait(false).GetAwaiter().GetResult();
+                return kernel.Get<Heartbeat>();
+            }
         }
     }
 }

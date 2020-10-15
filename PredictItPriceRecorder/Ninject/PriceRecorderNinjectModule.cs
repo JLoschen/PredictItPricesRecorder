@@ -1,5 +1,6 @@
 ﻿using Ninject.Modules;
 using PredictItPriceRecorder.DataAccess;
+using PredictItPriceRecorder.Services;
 using PredictItPriceRecorder.Services.Abstractions;
 using System;
 using System.Configuration;
