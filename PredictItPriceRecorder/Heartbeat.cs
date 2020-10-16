@@ -52,6 +52,16 @@ namespace PredictItPriceRecorder
             //}
         }
 
+        //api's to try:
+        //https://predictit-f497e.firebaseio.com/contractOrderBook.json
+        //https://ww.predictit.org/api/Trade/16010/OrderBook
+        //https://ww.predictit.org/api/Account/Token
+        //https://ww.predictit.org/api/Market/<MarketId>/Contracts/Stats
+        //'You have to use ur loging credentials
+        //attach that to a cookie to get the request
+        //the cookies expire every 12 hours
+        //or so 
+        //so just manually update the cookie every 9 hours and by manually i mean using your bot obviously (it's bad you're not using javascript, I coulda give you my code)
         private int[] MarketsToRecord { get; } =
             { 
                 //3633, //Dem Nom-closed
