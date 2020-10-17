@@ -66,19 +66,19 @@ namespace PredictItPriceRecorder
             //File.AppendAllLines(@"C:\Temp\Demos\Heartbeat.txt", lines);
 
             //TODO fire off query!
-            foreach (var marketId in MarketsToRecord)
-            {
-                //var market = _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult();
-                var market = await _predictItApiService.GetMarket(marketId);
-                if (market == null)
-                {
-                    Debug.WriteLine("I'm a failure :(");
-                }
-                else
-                {
-                    
-                }
-            }
+            //foreach (var marketId in MarketsToRecord)
+            //{
+            //    //var market = _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult();
+            //    var market = await _predictItApiService.GetMarket(marketId);
+            //    if (market == null)
+            //    {
+            //        Debug.WriteLine("I'm a failure :(");
+            //    }
+            //    else
+            //    {
+
+            //    }
+            //}
             //_predictItApiService.RunTest();
 
 
@@ -88,6 +88,8 @@ namespace PredictItPriceRecorder
             //{
             //    Debug.WriteLine($"{market.Id} - {market.Name} - {market.Url}");
             //}
+
+            _predictItDbService.RunTest();
         }
 
         //api's to try:

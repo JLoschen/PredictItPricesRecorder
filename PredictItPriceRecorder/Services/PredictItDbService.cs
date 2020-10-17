@@ -1,21 +1,24 @@
 ﻿using Dapper;
+using Microsoft.EntityFrameworkCore;
 using PredictItPriceRecorder.DataAccess;
+using PredictItPriceRecorder.Domain;
 using PredictItPriceRecorder.Model;
 using PredictItPriceRecorder.Services.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace PredictItPriceRecorder.Services
 {
     public class PredictItDbService : IPredictItDbService
     {
         private readonly IDbConnectionFactory _dbConnectionFactory;
-        public PredictItDbService(IDbConnectionFactory dbConnectionFactory)
+        private readonly PredictItContext _predictItContext;
+        public PredictItDbService(IDbConnectionFactory dbConnectionFactory, PredictItContext predictItContext)
         {
             _dbConnectionFactory = dbConnectionFactory;
+            _predictItContext = predictItContext;
         }
 
         public bool InsertMarket(MarketDbModel market)
@@ -50,6 +53,15 @@ namespace PredictItPriceRecorder.Services
                 {
                     return new List<MarketDbModel>();
                 }
+            }
+        }
+
+        public void RunTest()
+        {
+            var markets = _predictItContext.markets.Include(m => m.contracts).ToList();
+            foreach(var market in markets)
+            {
+                Debug.WriteLine("We done it fam");
             }
         }
     }

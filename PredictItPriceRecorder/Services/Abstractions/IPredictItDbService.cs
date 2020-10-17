@@ -7,5 +7,6 @@ namespace PredictItPriceRecorder.Services.Abstractions
     {
         bool InsertMarket(MarketDbModel market);
         IEnumerable<MarketDbModel> GetMarkets();
+        void RunTest();
     }
 }
