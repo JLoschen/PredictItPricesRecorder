@@ -9,7 +9,27 @@ namespace PredictItPriceRecorder
     {
         static void Main(string[] args)
         {
-            var exitCode = HostFactory.Run(x => 
+            //RunService();
+            RunTest();
+        }
+
+        private static void RunTest()
+        {
+            //var heart = GetHeartbeat();
+            //heart.QueryPredictItApi().ConfigureAwait(false).GetAwaiter().GetResult();
+
+            using (var kernel = new StandardKernel(new PriceRecorderNinjectModule()))
+            {
+                //var recorder = kernel.Get<Recorder>();
+                //recorder.Run().ConfigureAwait(false).GetAwaiter().GetResult();
+                var heart = kernel.Get<Heartbeat>();
+                heart.QueryPredictItApi().ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+        }
+
+        private static void RunService()
+        {
+            var exitCode = HostFactory.Run(x =>
             {
                 x.Service<Heartbeat>(s =>
                 {

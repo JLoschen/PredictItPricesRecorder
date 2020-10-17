@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace PredictItPriceRecorder
@@ -9,7 +10,7 @@ namespace PredictItPriceRecorder
     public class Heartbeat
     {
         private readonly Timer _timer;
-        private const int _queryInterval = 20000;
+        private const int _queryInterval = 10000;
         private IPredictItApiService _predictItApiService;
         private IPredictItDbService _predictItDbService;
 
@@ -20,27 +21,64 @@ namespace PredictItPriceRecorder
             _predictItDbService = predictItDbService;
 
             _timer = new Timer(_queryInterval) { AutoReset = true };
+            //_timer.Elapsed += (o,e) => QueryPredictItApi();
             _timer.Elapsed += TimerElapsed;
         }
 
-        private void TimerElapsed(object sender, ElapsedEventArgs e)
+        private async void TimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            await QueryPredictItApi();
+        }
+
+        //public void QueryPredictItApi(/*object sender, ElapsedEventArgs e*/)
+        //{
+        //    //string[] lines = new string[] { DateTime.Now.ToString() };
+        //    //File.AppendAllLines(@"C:\Temp\Demos\Heartbeat.txt", lines);
+
+        //    //TODO fire off query!
+        //    foreach (var marketId in MarketsToRecord)
+        //    {
+        //        //var market = _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult();
+        //        var market = _predictItApiService.GetMarket(marketId).Result;
+        //        if (market == null)
+        //        {
+        //            Debug.WriteLine("I'm a failure :(");
+        //        }
+        //        else
+        //        {
+        //            Debug.WriteLine("Success");
+        //        }
+        //    }
+        //    //_predictItApiService.RunTest();
+
+
+        //    //test DB
+        //    //var markets = _predictItDbService.GetMarkets();
+        //    //foreach (var market in markets)
+        //    //{
+        //    //    Debug.WriteLine($"{market.Id} - {market.Name} - {market.Url}");
+        //    //}
+        //}
+
+        public async Task QueryPredictItApi()
         {
             //string[] lines = new string[] { DateTime.Now.ToString() };
             //File.AppendAllLines(@"C:\Temp\Demos\Heartbeat.txt", lines);
 
             //TODO fire off query!
-            //foreach (var marketId in MarketsToRecord)
-            //{
-            //    var market =  _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult(); 
-            //    if (market == null)
-            //    {
-            //        Debug.WriteLine("I'm a failure :(");
-            //    }
-            //    else
-            //    {
-            //        Debug.WriteLine("Success");
-            //    }
-            //}
+            foreach (var marketId in MarketsToRecord)
+            {
+                //var market = _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult();
+                var market = await _predictItApiService.GetMarket(marketId);
+                if (market == null)
+                {
+                    Debug.WriteLine("I'm a failure :(");
+                }
+                else
+                {
+                    
+                }
+            }
             //_predictItApiService.RunTest();
 
 
@@ -66,8 +104,8 @@ namespace PredictItPriceRecorder
             { 
                 //3633, //Dem Nom-closed
                 2721,//Which Party will win Presidency
-                5542,//Wisconsin
-                5597,//Minnesota
+                //5542,//Wisconsin
+                //5597,//Minnesota
                 //6874,//2022 Senate
                 //2721,//2020 Presidental election
                 //3698,//Who will win 2020 presidential market
