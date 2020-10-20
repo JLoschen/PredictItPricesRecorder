@@ -1,4 +1,5 @@
-﻿using PredictItPriceRecorder.Services.Abstractions;
+﻿using PredictItPriceRecorder.Factory.Abstractions;
+using PredictItPriceRecorder.Services.Abstractions;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -7,18 +8,22 @@ using System.Timers;
 
 namespace PredictItPriceRecorder
 {
-    public class Heartbeat
+    public class Runner
     {
         private readonly Timer _timer;
         private const int _queryInterval = 10000;
         private IPredictItApiService _predictItApiService;
         private IPredictItDbService _predictItDbService;
+        private IPredictItFactory _predictItFactory;
 
-        public Heartbeat(IPredictItApiService predictItApiService, IPredictItDbService predictItDbService)
+        public Runner(IPredictItApiService predictItApiService, 
+                      IPredictItDbService predictItDbService,
+                      IPredictItFactory predictItFactory)
         {
             //_timer = new Timer(1000) { AutoReset = true };
             _predictItApiService = predictItApiService;
             _predictItDbService = predictItDbService;
+            _predictItFactory = predictItFactory;
 
             _timer = new Timer(_queryInterval) { AutoReset = true };
             //_timer.Elapsed += (o,e) => QueryPredictItApi();
@@ -66,19 +71,20 @@ namespace PredictItPriceRecorder
             //File.AppendAllLines(@"C:\Temp\Demos\Heartbeat.txt", lines);
 
             //TODO fire off query!
-            //foreach (var marketId in MarketsToRecord)
-            //{
-            //    //var market = _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult();
-            //    var market = await _predictItApiService.GetMarket(marketId);
-            //    if (market == null)
-            //    {
-            //        Debug.WriteLine("I'm a failure :(");
-            //    }
-            //    else
-            //    {
+            foreach (var marketId in MarketsToRecord)
+            {
+                //var market = _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult();
+                var marketModel = await _predictItApiService.GetMarket(marketId);
+                if (marketModel != null)
+                {
+                    Debug.WriteLine("Great Success");
+                    var marketEntity = _predictItFactory.GetMarketEntity(marketModel);
+                }
+                else
+                {
 
-            //    }
-            //}
+                }
+            }
             //_predictItApiService.RunTest();
 
 

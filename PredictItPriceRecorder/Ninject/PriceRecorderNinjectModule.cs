@@ -1,5 +1,7 @@
 ﻿using Ninject.Modules;
 using PredictItPriceRecorder.DataAccess;
+using PredictItPriceRecorder.Factory;
+using PredictItPriceRecorder.Factory.Abstractions;
 using PredictItPriceRecorder.Services;
 using PredictItPriceRecorder.Services.Abstractions;
 using System;
@@ -29,6 +31,7 @@ namespace PredictItPriceRecorder.Ninject
             Kernel.Bind<IPredictItApiService>().To<PredictItApiService>();
             Kernel.Bind<HttpClient>().ToConstant(_client);
             Kernel.Bind<IPredictItDbService>().To<PredictItDbService>();
+            Kernel.Bind<IPredictItFactory>().To<PredictItFactory>();
             Bind<IDbConnectionFactory>()
                     .To<DbConnectionFactory>()
                     .WithConstructorArgument("connectionString",

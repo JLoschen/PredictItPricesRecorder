@@ -9,6 +9,9 @@ namespace PredictItPriceRecorder.Services.Abstractions
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("shortName")]
+        public string ShortName { get; set; }
+
         [JsonProperty("id")]
         public int Id { get; set; }
 

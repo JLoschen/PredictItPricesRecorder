@@ -14,72 +14,63 @@ namespace PredictItPriceRecorder.Services
 {
     public class PredictItDbService : IPredictItDbService
     {
-        private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly PredictItContext _predictItContext;
-        public PredictItDbService(IDbConnectionFactory dbConnectionFactory, PredictItContext predictItContext)
+        public PredictItDbService(PredictItContext predictItContext)
         {
-            _dbConnectionFactory = dbConnectionFactory;
             _predictItContext = predictItContext;
-        }
-
-        public bool InsertMarket(MarketDbModel market)
-        {
-            //select * from Market;
-            var sql = @"INSERT INTO Market (Name, url) values (@Name, @Url);";
-            using (var con = _dbConnectionFactory.CreateConnection())
-            {
-                try
-                {
-                    con.Execute(sql, market);
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e.Message);
-                    return false;
-                }
-            }
-        }
-
-        public IEnumerable<MarketDbModel> GetMarkets()
-        {
-            using (var con = _dbConnectionFactory.CreateConnection())
-            {
-                try
-                {
-                    var sql = "select * from Market;";
-                    return con.Query<MarketDbModel>(sql).ToList();
-                }
-                catch (Exception e)
-                {
-                    return new List<MarketDbModel>();
-                }
-            }
         }
 
         public void RunTest()
         {
-            var markets = _predictItContext.markets
-                                           .Include(m => m.contracts)
-                                           .ThenInclude(c => c.contract_prices).ToList();
+            //var markets = _predictItContext.markets
+            //                               .Include(m => m.contracts)
+            //                               .ThenInclude(c => c.contract_prices).ToList();
 
-            foreach (var market in markets)
+            //foreach (var market in markets)
+            //{
+            //    Debug.WriteLine($"market:{market.name}");
+            //    foreach (var contract in market.contracts)
+            //    {
+            //        Debug.WriteLine($"contract:{contract.name}");
+            //        foreach (var price in contract.contract_prices)
+            //        {
+            //            Debug.WriteLine($"Price:{price.time_stamp} - {price.best_sell_yes_cost}");
+            //        }
+            //    }
+            //}
+
+            var myMarket = new market()
             {
-                Debug.WriteLine($"market:{market.name}");
-                foreach (var contract in market.contracts)
+                market_id = 123,
+                name = "Who will win the presidency",
+                url = "www.yourmom.com",
+                short_name = "Who!?!",
+                create_date = DateTime.Now,
+                contracts = new List<contract>
                 {
-                    Debug.WriteLine($"contract:{contract.name}");
-                    foreach (var price in contract.contract_prices)
+                    new contract()
                     {
-                        Debug.WriteLine($"Price:{price.time_stamp} - {price.best_sell_yes_cost}");
+                        market_id = 123,
+                        contract_id = 234,
+                        name = "Joe Biden",
+                        short_name = "Joe",
+                        create_date = DateTime.Now,
+                        contract_prices = new List<contract_price>()
+                        {
+                            new contract_price()
+                            {
+                                contract_id = 234,
+                                time_stamp = DateTime.Now,
+                                last_trade_price = 0.4M,
+                                best_buy_no_cost = 0.3M,
+                            },
+                        }
                     }
-                }
-            }
+                },
+            };
 
-            var market = new market()
-            {
-
-            }
+            _predictItContext.markets.Add(myMarket);
+            var x = _predictItContext.SaveChanges();
 
         }
 
