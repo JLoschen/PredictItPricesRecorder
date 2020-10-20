@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PredictItPriceRecorder.DataAccess;
 using PredictItPriceRecorder.Domain;
+using PredictItPriceRecorder.Domain.Model;
 using PredictItPriceRecorder.Model;
 using PredictItPriceRecorder.Services.Abstractions;
 using System;
@@ -58,11 +59,33 @@ namespace PredictItPriceRecorder.Services
 
         public void RunTest()
         {
-            var markets = _predictItContext.markets.Include(m => m.contracts).ToList();
-            foreach(var market in markets)
+            var markets = _predictItContext.markets
+                                           .Include(m => m.contracts)
+                                           .ThenInclude(c => c.contract_prices).ToList();
+
+            foreach (var market in markets)
             {
-                Debug.WriteLine("We done it fam");
+                Debug.WriteLine($"market:{market.name}");
+                foreach (var contract in market.contracts)
+                {
+                    Debug.WriteLine($"contract:{contract.name}");
+                    foreach (var price in contract.contract_prices)
+                    {
+                        Debug.WriteLine($"Price:{price.time_stamp} - {price.best_sell_yes_cost}");
+                    }
+                }
             }
+
+            var market = new market()
+            {
+
+            }
+
+        }
+
+        public bool AddMarket(market market)
+        {
+            return false;
         }
     }
 }

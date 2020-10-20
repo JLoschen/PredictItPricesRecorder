@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,5 +20,7 @@ namespace PredictItPriceRecorder.Domain.Model
 
         [ForeignKey(nameof(market_id))]
         public virtual market market { get; set; }
+
+        public virtual ICollection<contract_price> contract_prices { get; set; }
     }
 }
