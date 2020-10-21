@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace PredictItPriceRecorder.Domain.Model
 {
@@ -20,7 +18,5 @@ namespace PredictItPriceRecorder.Domain.Model
 
         [ForeignKey(nameof(contract_id))]
         public virtual contract contract { get; set; }
-
-
     }
 }

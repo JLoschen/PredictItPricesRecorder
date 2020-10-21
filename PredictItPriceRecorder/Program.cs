@@ -22,7 +22,7 @@ namespace PredictItPriceRecorder
             {
                 //var recorder = kernel.Get<Recorder>();
                 //recorder.Run().ConfigureAwait(false).GetAwaiter().GetResult();
-                var heart = kernel.Get<Heartbeat>();
+                var heart = kernel.Get<Runner>();
                 heart.QueryPredictItApi().ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
@@ -31,7 +31,7 @@ namespace PredictItPriceRecorder
         {
             var exitCode = HostFactory.Run(x =>
             {
-                x.Service<Heartbeat>(s =>
+                x.Service<Runner>(s =>
                 {
                     //s.ConstructUsing(heartBeat => new Heartbeat());
                     s.ConstructUsing(heartBeat => GetHeartbeat());
@@ -50,13 +50,13 @@ namespace PredictItPriceRecorder
             Environment.ExitCode = exitCodeValue;
         }
 
-        private static Heartbeat GetHeartbeat()
+        private static Runner GetHeartbeat()
         {
             using (var kernel = new StandardKernel(new PriceRecorderNinjectModule()))
             {
                 //var recorder = kernel.Get<Recorder>();
                 //recorder.Run().ConfigureAwait(false).GetAwaiter().GetResult();
-                return kernel.Get<Heartbeat>();
+                return kernel.Get<Runner>();
             }
         }
     }

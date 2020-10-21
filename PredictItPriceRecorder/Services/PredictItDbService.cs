@@ -76,7 +76,21 @@ namespace PredictItPriceRecorder.Services
 
         public bool AddMarket(market market)
         {
-            return false;
+            try
+            {
+                _predictItContext.markets.Add(market);
+                return _predictItContext.SaveChanges() > 0;
+
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
         }
+
+        public bool MarketExists(int id) => _predictItContext.markets.Any(m => m.market_id == id);
+
+        public bool ContractExists(int id)
+            => _predictItContext.contracts.Any(c => c.contract_id == id);
     }
 }

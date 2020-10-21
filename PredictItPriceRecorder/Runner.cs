@@ -12,18 +12,18 @@ namespace PredictItPriceRecorder
     {
         private readonly Timer _timer;
         private const int _queryInterval = 10000;
-        private IPredictItApiService _predictItApiService;
-        private IPredictItDbService _predictItDbService;
-        private IPredictItFactory _predictItFactory;
+        private IPredictItApiService _api;
+        private IPredictItDbService _db;
+        private IPredictItFactory _factory;
 
-        public Runner(IPredictItApiService predictItApiService, 
-                      IPredictItDbService predictItDbService,
-                      IPredictItFactory predictItFactory)
+        public Runner(IPredictItApiService predictItApi, 
+                      IPredictItDbService predictItDb,
+                      IPredictItFactory factory)
         {
             //_timer = new Timer(1000) { AutoReset = true };
-            _predictItApiService = predictItApiService;
-            _predictItDbService = predictItDbService;
-            _predictItFactory = predictItFactory;
+            _api = predictItApi;
+            _db = predictItDb;
+            _factory = factory;
 
             _timer = new Timer(_queryInterval) { AutoReset = true };
             //_timer.Elapsed += (o,e) => QueryPredictItApi();
@@ -74,15 +74,42 @@ namespace PredictItPriceRecorder
             foreach (var marketId in MarketsToRecord)
             {
                 //var market = _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult();
-                var marketModel = await _predictItApiService.GetMarket(marketId);
-                if (marketModel != null)
+                var market = await _api.GetMarket(marketId);
+                if(market == null)
                 {
-                    Debug.WriteLine("Great Success");
-                    var marketEntity = _predictItFactory.GetMarketEntity(marketModel);
+                    Debug.WriteLine($"Failure querying API for market:{marketId}");
+                    continue;
+                }
+
+                Debug.WriteLine($"Got market {market.Name}");
+
+                if (!_db.MarketExists(market.Id))
+                {
+                    Debug.WriteLine($"New market created, adding for the first time: {market.Name}");
+
+                    var marketEntity = _factory.GetMarketEntity(market);
+
+                    marketEntity.create_date = DateTime.Now;
+
+                    foreach(var contract in marketEntity.contracts)
+                    {
+                        contract.create_date = DateTime.Now;
+                    }
+
+                    var addedSuccessfully = _db.AddMarket(marketEntity);
+                    var log = addedSuccessfully ? "Successfully added market" : "Failure to add market";
+                    Debug.WriteLine(log);
                 }
                 else
                 {
+                    Debug.WriteLine($"Market {market.Name} already exists, updating prices");
+                    foreach(var contract in market.Contracts)
+                    {
+                        if (_db.ContractExists(contract.Id))
+                        {
 
+                        }
+                    }
                 }
             }
             //_predictItApiService.RunTest();
@@ -95,7 +122,7 @@ namespace PredictItPriceRecorder
             //    Debug.WriteLine($"{market.Id} - {market.Name} - {market.Url}");
             //}
 
-            _predictItDbService.RunTest();
+            //_predictItDbService.RunTest();
         }
 
         //api's to try:

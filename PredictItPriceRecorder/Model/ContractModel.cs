@@ -14,25 +14,31 @@ namespace PredictItPriceRecorder.Model
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("shortName")]
+        public string ShortName { get; set; }
+
         [JsonProperty("status")]
         public ContractStatus Status { get; set; }
 
         [JsonProperty("lastTradePrice")]
-        public float? LastTradePrice { get; set; }
+        public decimal? LastTradePrice { get; set; }
 
         [JsonProperty("bestBuyYesCost")]
-        public float? BestBuyYesCost { get; set; }
+        public decimal? BestBuyYesCost { get; set; }
 
         [JsonProperty("bestBuyNoCost")]
-        public float? BestBuyNoCost { get; set; }
+        public decimal? BestBuyNoCost { get; set; }
 
         [JsonProperty("bestSellYesCost")]
-        public float? BestSellYesCost { get; set; }
+        public decimal? BestSellYesCost { get; set; }
 
         [JsonProperty("bestSellNoCost")]
-        public float? BestSellNoCost { get; set; }
+        public decimal? BestSellNoCost { get; set; }
 
         [JsonProperty("lastClosePrice")]
-        public float? LastClosePrice { get; set; }
+        public decimal? LastClosePrice { get; set; }
+
+        [JsonProperty("displayOrder")]
+        public byte DisplayOrder { get; set; }
     }
 }
