@@ -8,5 +8,7 @@ namespace PredictItPriceRecorder.Services.Abstractions
         bool MarketExists(int Id);
         bool ContractExists(int Id);
         bool AddMarket(market market);
+        bool AddContract(contract contract);
+        bool AddPrice(contract_price price);
     }
 }

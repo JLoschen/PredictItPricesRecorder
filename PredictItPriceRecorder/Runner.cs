@@ -1,4 +1,5 @@
 ﻿using PredictItPriceRecorder.Factory.Abstractions;
+using PredictItPriceRecorder.Model;
 using PredictItPriceRecorder.Services.Abstractions;
 using System;
 using System.Diagnostics;
@@ -20,13 +21,11 @@ namespace PredictItPriceRecorder
                       IPredictItDbService predictItDb,
                       IPredictItFactory factory)
         {
-            //_timer = new Timer(1000) { AutoReset = true };
             _api = predictItApi;
             _db = predictItDb;
             _factory = factory;
 
             _timer = new Timer(_queryInterval) { AutoReset = true };
-            //_timer.Elapsed += (o,e) => QueryPredictItApi();
             _timer.Elapsed += TimerElapsed;
         }
 
@@ -35,45 +34,10 @@ namespace PredictItPriceRecorder
             await QueryPredictItApi();
         }
 
-        //public void QueryPredictItApi(/*object sender, ElapsedEventArgs e*/)
-        //{
-        //    //string[] lines = new string[] { DateTime.Now.ToString() };
-        //    //File.AppendAllLines(@"C:\Temp\Demos\Heartbeat.txt", lines);
-
-        //    //TODO fire off query!
-        //    foreach (var marketId in MarketsToRecord)
-        //    {
-        //        //var market = _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult();
-        //        var market = _predictItApiService.GetMarket(marketId).Result;
-        //        if (market == null)
-        //        {
-        //            Debug.WriteLine("I'm a failure :(");
-        //        }
-        //        else
-        //        {
-        //            Debug.WriteLine("Success");
-        //        }
-        //    }
-        //    //_predictItApiService.RunTest();
-
-
-        //    //test DB
-        //    //var markets = _predictItDbService.GetMarkets();
-        //    //foreach (var market in markets)
-        //    //{
-        //    //    Debug.WriteLine($"{market.Id} - {market.Name} - {market.Url}");
-        //    //}
-        //}
-
         public async Task QueryPredictItApi()
         {
-            //string[] lines = new string[] { DateTime.Now.ToString() };
-            //File.AppendAllLines(@"C:\Temp\Demos\Heartbeat.txt", lines);
-
-            //TODO fire off query!
             foreach (var marketId in MarketsToRecord)
             {
-                //var market = _predictItApiService.GetMarket(marketId).ConfigureAwait(false).GetAwaiter().GetResult();
                 var market = await _api.GetMarket(marketId);
                 if(market == null)
                 {
@@ -85,44 +49,59 @@ namespace PredictItPriceRecorder
 
                 if (!_db.MarketExists(market.Id))
                 {
-                    Debug.WriteLine($"New market created, adding for the first time: {market.Name}");
-
-                    var marketEntity = _factory.GetMarketEntity(market);
-
-                    marketEntity.create_date = DateTime.Now;
-
-                    foreach(var contract in marketEntity.contracts)
-                    {
-                        contract.create_date = DateTime.Now;
-                    }
-
-                    var addedSuccessfully = _db.AddMarket(marketEntity);
-                    var log = addedSuccessfully ? "Successfully added market" : "Failure to add market";
-                    Debug.WriteLine(log);
+                    AddMarket(market);
                 }
                 else
                 {
                     Debug.WriteLine($"Market {market.Name} already exists, updating prices");
                     foreach(var contract in market.Contracts)
                     {
-                        if (_db.ContractExists(contract.Id))
+                        if (!_db.ContractExists(contract.Id))
                         {
-
+                            AddContract(contract, market.Id);
                         }
+
+                        AddPrice(contract);
                     }
                 }
             }
-            //_predictItApiService.RunTest();
+        }
 
+        private void AddMarket(MarketModel market)
+        {
+            Debug.WriteLine($"New market created, adding for the first time: {market.Name}");
 
-            //test DB
-            //var markets = _predictItDbService.GetMarkets();
-            //foreach (var market in markets)
-            //{
-            //    Debug.WriteLine($"{market.Id} - {market.Name} - {market.Url}");
-            //}
+            var marketEntity = _factory.GetMarketEntity(market);
 
-            //_predictItDbService.RunTest();
+            marketEntity.create_date = DateTime.Now;
+
+            foreach (var contract in marketEntity.contracts)
+            {
+                contract.create_date = DateTime.Now;
+            }
+
+            var success = _db.AddMarket(marketEntity);
+            var log = success ? "Successfully added market" : "Failure to add market";
+            Debug.WriteLine(log);
+        }
+
+        private void AddContract(ContractModel contract, int marketId)
+        {
+            var entity = _factory.GetContract(contract, marketId);
+            entity.create_date = DateTime.Now;
+            var success = _db.AddContract(entity);
+            var log = success ? $"Successfully added contract {contract.ShortName}" : "Failure to add contract";
+            Debug.WriteLine(log);
+        }
+
+        private void AddPrice(ContractModel contract)
+        {
+            var price = _factory.GetContractPrice(contract);
+            var success = _db.AddPrice(price);
+            if (!success)
+            {
+                Debug.WriteLine($"Failure to add contract price to Contract:{contract?.ShortName}");
+            }
         }
 
         //api's to try:
