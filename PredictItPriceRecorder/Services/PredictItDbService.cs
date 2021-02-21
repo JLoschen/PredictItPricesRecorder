@@ -1,13 +1,9 @@
-﻿using Dapper;
-using Microsoft.EntityFrameworkCore;
-using PredictItPriceRecorder.DataAccess;
-using PredictItPriceRecorder.Domain;
+﻿using PredictItPriceRecorder.Domain;
 using PredictItPriceRecorder.Domain.Model;
-using PredictItPriceRecorder.Model;
 using PredictItPriceRecorder.Services.Abstractions;
+using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace PredictItPriceRecorder.Services
@@ -15,9 +11,11 @@ namespace PredictItPriceRecorder.Services
     public class PredictItDbService : IPredictItDbService
     {
         private readonly PredictItContext _predictItContext;
-        public PredictItDbService(PredictItContext predictItContext)
+        private readonly ILogger _logger;
+        public PredictItDbService(PredictItContext predictItContext, ILogger logger)
         {
             _predictItContext = predictItContext;
+            _logger = logger;
         }
 
         public void RunTest()
@@ -78,12 +76,13 @@ namespace PredictItPriceRecorder.Services
         {
             try
             {
+                _logger.Information($"Adding new market:{market.name}-{market.market_id}");
                 _predictItContext.markets.Add(market);
                 return _predictItContext.SaveChanges() > 0;
-
             }
             catch(Exception e)
             {
+                _logger.Error(e, $"Error Adding new market:{market?.name}-{market?.market_id}");
                 return false;
             }
         }
@@ -92,12 +91,13 @@ namespace PredictItPriceRecorder.Services
         {
             try
             {
+                _logger.Information($"Adding new contract:{contract?.name}-{contract?.contract_id}");
                 _predictItContext.contracts.Add(contract);
                 return _predictItContext.SaveChanges() > 0;
-
             }
             catch (Exception e)
             {
+                _logger.Error(e, $"Error Adding contract:{contract?.name}-{contract?.contract_id} - market: {contract?.market?.name}");
                 return false;
             }
         }
@@ -108,10 +108,10 @@ namespace PredictItPriceRecorder.Services
             {
                 _predictItContext.contract_prices.Add(price);
                 return _predictItContext.SaveChanges() > 0;
-
             }
             catch (Exception e)
             {
+                _logger.Error(e, $"Error setting price for contract:{price?.contract?.name}-{price?.contract?.contract_id}");
                 return false;
             }
         }
