@@ -9,8 +9,8 @@ namespace PredictItPriceRecorder
     {
         static void Main(string[] args)
         {
-            //RunService();
-            RunTest();
+            RunService();
+            //RunTest();
         }
 
         private static void RunTest()
@@ -22,7 +22,7 @@ namespace PredictItPriceRecorder
             {
                 //var recorder = kernel.Get<Recorder>();
                 //recorder.Run().ConfigureAwait(false).GetAwaiter().GetResult();
-                var heart = kernel.Get<Runner>();
+                var heart = kernel.Get</*Runner*/PriceRecorder>();
                 heart.QueryPredictItApi().ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
@@ -34,9 +34,11 @@ namespace PredictItPriceRecorder
                 x.Service<Runner>(s =>
                 {
                     //s.ConstructUsing(heartBeat => new Heartbeat());
-                    s.ConstructUsing(heartBeat => GetHeartbeat());
-                    s.WhenStarted(heartBeat => heartBeat.Start());
-                    s.WhenStopped(heartBeat => heartBeat.Stop());
+                    //s.BeforeStartingService(s => s./*runner => runner.BeforeStart()*/);
+                    s.ConstructUsing(runner => GetHeartbeat());
+                    s.WhenStarted(runner => runner.Start());
+                    s.WhenStopped(runner => runner.Stop());
+                    
                 });
 
                 x.RunAsLocalSystem();
